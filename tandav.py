@@ -9,7 +9,6 @@ names = [
     'data_user/secrets/sec_vector.csv',
     'data_user/secrets/w_vector.csv',
     'data_user/beta_2.txt',
-    'data_user/beta_1.txt',
     'data_user/data_og.csv',
     'data_user/err.csv',
     'data_user/enc_query_1.csv',
@@ -18,6 +17,7 @@ names = [
     'query_user/enc_query_2.csv',
     'query_user/query_og.csv',
     'query_user/beta_1.txt',
+    'query_user/knnResult.csv'
 ]
 
 for i in names:
