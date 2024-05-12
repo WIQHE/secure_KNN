@@ -23,13 +23,7 @@ def generate_m_temp(eta, q_max, max_norm):
 
 
 def get_max_norm(matrix):
-    # Calculate the squared sum of elements for each row
-    row_sums_squared = np.sum(matrix**2, axis=1)
-    
-    # Calculate the max norm among all rows
-    max_norm = np.sqrt(np.max(row_sums_squared))
-    
-    return max_norm
+    return np.max(np.linalg.norm(matrix, axis=1))
 
 
 def generate_and_save_secrets(eta, c, d):
@@ -64,7 +58,7 @@ def encrypt_original_data_user_cloud(original_data, sec_vector, m_base_inv, w_ve
         # print(encrypted_pi)
         
         # Step 3: Adding extra columns to pi
-        square_root_avg = np.sqrt(np.mean(pi[:d]**2))
+        square_root_avg = np.linalg.norm(pi[:d]**2)
         
         pi_dplus1 = sec_vector[d] + square_root_avg
         
