@@ -12,5 +12,12 @@ frontend/public/bundle.js.map
 # OS
 .DS_Store
 
+# Databases
+*.db
+secure_knn_dev.db
+
+# Agent temp files
+.claude/
+
 # Runtime-generated ciphertext (written by webapp/app.py at request time)
 cloud/enc_data.csv
