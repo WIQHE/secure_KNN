@@ -58,59 +58,91 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSessionStarted }) => {
     setError('');
     resetSteps();
     
-    let sessionId = '';
+    const cases = [
+      { name: 'Low-Dim (2D)', n: 20, d: 2, c: 3, ep: 2, k: 3 },
+      { name: 'Med-Dim (8D)', n: 100, d: 8, c: 5, ep: 3, k: 5 },
+      { name: 'High-Dim (20D)', n: 500, d: 20, c: 8, ep: 5, k: 10 }
+    ];
+    
+    let lastSessionId = '';
     try {
-      // Step 0: Create Session
-      setCurrentStepIndex(0);
-      updateStepStatus('session', 'running');
-      const sessionResult = await api.createSession(`Smoke Test (N=${nRows}, D=${dDims})`);
-      sessionId = sessionResult.session_id;
-      updateStepStatus('session', 'completed');
-      
-      // Step 1: Generate Data
-      setCurrentStepIndex(1);
-      updateStepStatus('generate_data', 'running');
-      await api.runPipelineStep(sessionId, 'generate_data', { n: nRows, d: dDims, c: cNoise, ep: epNoise });
-      updateStepStatus('generate_data', 'completed');
+      for (let idx = 0; idx < cases.length; idx++) {
+        const testCase = cases[idx];
+        
+        // Update steps description dynamically to show active run
+        setSteps(prev => prev.map(s => {
+          if (s.id === 'session') return { ...s, description: `Establishing secure session & cryptographic keys space for ${testCase.name}` };
+          if (s.id === 'generate_data') return { ...s, description: `Generating synthetic original dataset for ${testCase.name} (N=${testCase.n}, D=${testCase.d})` };
+          if (s.id === 'generate_query') return { ...s, description: `Generating plaintext query vector for ${testCase.name}` };
+          if (s.id === 'query_stage1') return { ...s, description: `Multiplying query by secret matrix N & random scalar beta_1 for ${testCase.name}` };
+          if (s.id === 'data_owner') return { ...s, description: `Encrypting full dataset using ASPE & double-encrypting for ${testCase.name}` };
+          if (s.id === 'query_stage2') return { ...s, description: `Removing secret matrix N to finalize query for ${testCase.name}` };
+          if (s.id === 'cloud_knn') return { ...s, description: `Computing distances without decryption, sorting top-K for ${testCase.name} (K=${testCase.k})` };
+          if (s.id === 'baseline') return { ...s, description: `Computing standard Euclidean k-NN in plaintext for verification of ${testCase.name}` };
+          return s;
+        }));
+        
+        // Reset steps status to idle for the new run
+        setSteps(prev => prev.map(s => ({ ...s, status: 'idle' })));
+        
+        // Step 0: Create Session
+        setCurrentStepIndex(0);
+        updateStepStatus('session', 'running');
+        const sessionResult = await api.createSession(`Demo: ${testCase.name}`);
+        const sessionId = sessionResult.session_id;
+        lastSessionId = sessionId;
+        updateStepStatus('session', 'completed');
+        
+        // Step 1: Generate Data
+        setCurrentStepIndex(1);
+        updateStepStatus('generate_data', 'running');
+        await api.runPipelineStep(sessionId, 'generate_data', { n: testCase.n, d: testCase.d, c: testCase.c, ep: testCase.ep });
+        updateStepStatus('generate_data', 'completed');
 
-      // Step 2: Generate Query
-      setCurrentStepIndex(2);
-      updateStepStatus('generate_query', 'running');
-      await api.runPipelineStep(sessionId, 'generate_query', { d: dDims });
-      updateStepStatus('generate_query', 'completed');
+        // Step 2: Generate Query
+        setCurrentStepIndex(2);
+        updateStepStatus('generate_query', 'running');
+        await api.runPipelineStep(sessionId, 'generate_query', { d: testCase.d });
+        updateStepStatus('generate_query', 'completed');
 
-      // Step 3: Query Stage 1
-      setCurrentStepIndex(3);
-      updateStepStatus('query_stage1', 'running');
-      await api.runPipelineStep(sessionId, 'query_stage1');
-      updateStepStatus('query_stage1', 'completed');
+        // Step 3: Query Stage 1
+        setCurrentStepIndex(3);
+        updateStepStatus('query_stage1', 'running');
+        await api.runPipelineStep(sessionId, 'query_stage1');
+        updateStepStatus('query_stage1', 'completed');
 
-      // Step 4: Data Owner Process
-      setCurrentStepIndex(4);
-      updateStepStatus('data_owner', 'running');
-      await api.runPipelineStep(sessionId, 'data_owner', { c: cNoise, ep: epNoise });
-      updateStepStatus('data_owner', 'completed');
+        // Step 4: Data Owner Process
+        setCurrentStepIndex(4);
+        updateStepStatus('data_owner', 'running');
+        await api.runPipelineStep(sessionId, 'data_owner', { c: testCase.c, ep: testCase.ep });
+        updateStepStatus('data_owner', 'completed');
 
-      // Step 5: Query Stage 2
-      setCurrentStepIndex(5);
-      updateStepStatus('query_stage2', 'running');
-      await api.runPipelineStep(sessionId, 'query_stage2');
-      updateStepStatus('query_stage2', 'completed');
+        // Step 5: Query Stage 2
+        setCurrentStepIndex(5);
+        updateStepStatus('query_stage2', 'running');
+        await api.runPipelineStep(sessionId, 'query_stage2');
+        updateStepStatus('query_stage2', 'completed');
 
-      // Step 6: Cloud k-NN
-      setCurrentStepIndex(6);
-      updateStepStatus('cloud_knn', 'running');
-      await api.runPipelineStep(sessionId, 'cloud_knn', { k: kNeighbors });
-      updateStepStatus('cloud_knn', 'completed');
+        // Step 6: Cloud k-NN
+        setCurrentStepIndex(6);
+        updateStepStatus('cloud_knn', 'running');
+        await api.runPipelineStep(sessionId, 'cloud_knn', { k: testCase.k });
+        updateStepStatus('cloud_knn', 'completed');
 
-      // Step 7: Baseline Plaintext Comparison
-      setCurrentStepIndex(7);
-      updateStepStatus('baseline', 'running');
-      await api.runBaselineKnn(sessionId, kNeighbors);
-      updateStepStatus('baseline', 'completed');
+        // Step 7: Baseline Plaintext Comparison
+        setCurrentStepIndex(7);
+        updateStepStatus('baseline', 'running');
+        await api.runBaselineKnn(sessionId, testCase.k);
+        updateStepStatus('baseline', 'completed');
+        
+        // Wait 300ms between runs so they can see the transitions
+        if (idx < cases.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
       
       setTimeout(() => {
-        onSessionStarted(sessionId);
+        onSessionStarted(lastSessionId);
       }, 600);
     } catch (err: any) {
       setError(err.message || 'An error occurred during step execution');

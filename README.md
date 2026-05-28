@@ -7,6 +7,20 @@ The primary goal of this project is to allow a Data Owner to outsource their dat
 
 ---
 
+## Visual Dashboard Showcase
+
+Below are actual, high-resolution screenshots of the running Vite + React + TypeScript dashboard console executing the multi-dataset secure k-NN pipeline sequentially.
+
+### 1. Main Pipeline Execution Console
+The console lists parameter configs, uploader widgets, and live timeline checkpoints for the homomorphic key exchange:
+![Dashboard Console](docs/images/dashboard_home.png)
+
+### 2. Homomorphic Distance Evaluation Charts
+Once all three runs complete, the analytics dashboard renders exact neighbor correlation charts and speed curves with 100% accuracy:
+![Homomorphic Comparison View](docs/images/comparison_view.png)
+
+---
+
 ## State of the Project
 The project is currently a functional proof-of-concept with both a **Script-based Pipeline** and a **FastAPI Backend Service**.
 
