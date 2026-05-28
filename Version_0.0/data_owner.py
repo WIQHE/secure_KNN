@@ -15,11 +15,11 @@ QUERY_DIR = os.environ.get("QUERY_DIR", "query_user")
 SECRETS_DIR = os.path.join(DATA_DIR, "secrets")
 
 original_path = os.path.join(DATA_DIR, "data_og.csv")
-orignal_data = np.loadtxt(original_path, delimiter=",")
+original_data = np.loadtxt(original_path, delimiter=",")
 
-max_norm = get_max_norm(orignal_data)
+max_norm = get_max_norm(original_data)
 
-n, d = orignal_data.shape
+n, d = original_data.shape
 c = 5
 ep = 3
 eta = d + 1 + c + ep
@@ -36,7 +36,7 @@ m_base_inv = np.linalg.inv(m_base)
 enc_path = os.path.join(CLOUD_DIR, "enc_data_cloud_1.csv")
 if not os.path.exists(enc_path):
     enc_data = encrypt_original_data_user_cloud(
-        orignal_data, sec_vector, m_base_inv, w_vector, ep
+        original_data, sec_vector, m_base_inv, w_vector, ep
     )
     os.makedirs(CLOUD_DIR, exist_ok=True)
     np.savetxt(enc_path, enc_data, delimiter=",")
@@ -45,7 +45,7 @@ enc_data = np.loadtxt(enc_path, delimiter=",")
 
 query1_path = os.path.join(DATA_DIR, "enc_query_1.csv")
 if os.path.exists(query1_path):
-    enc_q = np.loadtxt(query1_path)
+    enc_q = np.loadtxt(query1_path, delimiter=",")
     q_max = np.max(enc_q)
     m_temp = generate_m_temp(eta, q_max, max_norm)
     q_dash = np.concatenate((enc_q, [1], np.random.randint(0, 10, size=c), np.zeros(ep)))

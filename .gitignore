@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Node / frontend build
+frontend/node_modules/
+frontend/public/bundle.js.map
+
+# OS
+.DS_Store
+
+# Runtime-generated ciphertext (written by webapp/app.py at request time)
+cloud/enc_data.csv

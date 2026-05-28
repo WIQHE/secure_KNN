@@ -23,10 +23,8 @@ if os.path.exists('query_user/enc_query_2.csv'):
     
     q_dash_enc = np.dot(enc_q_final, N_dash_inv)
 
-    q_dash_vec=np.ones(eta)
-
-    for i in range(eta):
-        q_dash_vec[i] = (np.sum(q_dash_enc[i][:eta]))
+    # q_dash_enc is (eta, eta); collapse each row to a scalar by summation.
+    q_dash_vec = q_dash_enc.sum(axis=1)
     np.savetxt('cloud/q_dash_vec.csv', q_dash_vec, delimiter=',')
     np.savetxt('query_user/n_dash_inv.csv', N_dash_inv, delimiter=',')
 

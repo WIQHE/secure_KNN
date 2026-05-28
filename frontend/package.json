@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "echo \"No tests\""
+    "build": "esbuild src/index.js --bundle --jsx=automatic --loader:.js=jsx --outfile=public/bundle.js --define:process.env.NODE_ENV=\\\"development\\\" --sourcemap",
+    "watch": "npm run build -- --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "mathjs": "^12.4.2"
   }
 }

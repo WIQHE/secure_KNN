@@ -1,19 +1,9 @@
-"""Utility functions for secure k-NN operations."""
+"""Server-side utilities for secure k-NN.
 
-from .utils import (
-    generate_m_temp,
-    get_max_norm,
-    generate_and_save_secrets,
-    encrypt_original_data_user_cloud,
-    transform_data_for_query,
-    our_knn,
-)
+The cloud only ever runs ``our_knn`` on ciphertexts; all encryption happens
+client-side (frontend/src/crypto/aspe.js).
+"""
 
-__all__ = [
-    "generate_m_temp",
-    "get_max_norm",
-    "generate_and_save_secrets",
-    "encrypt_original_data_user_cloud",
-    "transform_data_for_query",
-    "our_knn",
-]
+from .utils import our_knn
+
+__all__ = ["our_knn"]
